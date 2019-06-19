@@ -42,3 +42,38 @@ write.csv(
   file = "football_transfers_by_league.csv",
   row.names=FALSE)
 ```
+
+Group by club
+
+```{r}
+result <- data.frame(
+  year=integer(),
+  league=character(),
+  club=character(),
+  sum_in=numeric(),
+  sum_out=numeric()
+  )
+
+for (year in years) {
+  for (league in leagues) {
+    transfers <- read.csv(file = glue("{path_to_transfers_data}/data/{year}/{league}.csv"), header = TRUE)
+    transfers_by_club <- transfers %>%
+      group_by(club_name, transfer_movement) %>%
+      summarize(fee_cleaned = sum(fee_cleaned, na.rm = TRUE))
+    sum_in <- transfers_by_club %>%
+      filter(transfer_movement == "in") %>%
+      summarize(sum_in = sum(fee_cleaned, na.rm = TRUE))
+    sum_out <- transfers_by_club %>%
+      filter(transfer_movement == "out") %>%
+      summarize(sum_out = sum(fee_cleaned, na.rm = TRUE))
+    new_rows <- inner_join(sum_in, sum_out, by = "club_name") %>%
+      mutate(year = year, league = league, club = club_name) %>%
+      select(year, league, club, sum_in, sum_out)
+    result <- rbind(result, new_rows)
+  }
+}
+write.csv(
+  data.frame(lapply(result, as.character), stringsAsFactors=FALSE),
+  file = "football_transfers_by_club.csv",
+  row.names=FALSE)
+```
