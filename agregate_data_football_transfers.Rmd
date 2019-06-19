@@ -26,7 +26,7 @@ result <- data.frame(
 
 for (year in years) {
   for (league in leagues) {
-    transfers <- read.csv(file = glue("{path_to_transfers_data}/data/{season}/{league}.csv"), header = TRUE)
+    transfers <- read.csv(file = glue("{path_to_transfers_data}/data/{year}/{league}.csv"), header = TRUE)
     sum_in <- transfers %>%
       filter(transfer_movement == "in") %>%
       summarize(total = sum(fee_cleaned, na.rm = TRUE))
