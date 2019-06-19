@@ -3,6 +3,8 @@ title: "Agregate data about football transfers"
 output: html_notebook
 ---
 
+Group by national league
+
 ```{r}
 library(tidyr)
 library(dplyr)
@@ -12,16 +14,17 @@ library(glue)
 # Set this according to where you cloned https://github.com/ewenme/transfers
 path_to_transfers_data <- "../transfers_data"
 
-seasons <- 1992:2018
-leagues <- c("english_premier_league", "spanish_primera_division", "german_bundesliga_1", "italian_serie_a", "french_ligue_1", "english_championship",  "portugese_liga_nos","dutch_eredivisie", "russian_premier_liga")
+years <- 1992:2018
+leagues <- c("english_premier_league", "spanish_primera_division", "german_bundesliga_1", "italian_serie_a", "french_ligue_1", "english_championship", "portugese_liga_nos","dutch_eredivisie", "russian_premier_liga")
 
 result <- data.frame(
-  season=integer(),
+  year=integer(),
   league=character(),
   sum_in=numeric(),
   sum_out=numeric()
   )
-for (season in seasons) {
+
+for (year in years) {
   for (league in leagues) {
     transfers <- read.csv(file = glue("{path_to_transfers_data}/data/{season}/{league}.csv"), header = TRUE)
     sum_in <- transfers %>%
@@ -31,11 +34,11 @@ for (season in seasons) {
       filter(transfer_movement == "out") %>%
       summarize(total = sum(fee_cleaned, na.rm = TRUE))
     result <- result %>%
-      add_row(season = season, league = league, sum_in = sum_in, sum_out = sum_out)
+      add_row(year = year, league = league, sum_in = sum_in, sum_out = sum_out)
   }
 }
 write.csv(
   data.frame(lapply(result, as.character), stringsAsFactors=FALSE),
-  file = "football_transfers.csv",
+  file = "football_transfers_by_league.csv",
   row.names=FALSE)
 ```
